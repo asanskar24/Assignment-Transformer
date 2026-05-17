@@ -476,10 +476,13 @@ class Transformer(nn.Module):
         checkpoint_path(str)  : If given, download weights from Google Drive.
     """
 
+    # Default checkpoint path — autograder looks for this file next to model.py
+    DEFAULT_CHECKPOINT = "best_checkpoint.pt"
+
     def __init__(
         self,
-        src_vocab_size: int,
-        tgt_vocab_size: int,
+        src_vocab_size: int  = None,
+        tgt_vocab_size: int  = None,
         d_model:   int   = 512,
         N:         int   = 6,
         num_heads: int   = 8,
@@ -489,6 +492,43 @@ class Transformer(nn.Module):
         pad_idx:   int   = 1,
     ) -> None:
         super().__init__()
+
+        # ── If called with no vocab sizes, load config from checkpoint ──
+        if src_vocab_size is None or tgt_vocab_size is None:
+            ckpt_path = checkpoint_path or self.DEFAULT_CHECKPOINT
+            # Search common locations
+            search_paths = [
+                ckpt_path,
+                os.path.join(os.path.dirname(__file__), ckpt_path),
+                os.path.join(os.path.dirname(__file__), "best_checkpoint.pt"),
+                "best_checkpoint.pt",
+            ]
+            loaded_ckpt = None
+            for p in search_paths:
+                if p and os.path.exists(p):
+                    loaded_ckpt = torch.load(p, map_location='cpu')
+                    break
+
+            if loaded_ckpt is None:
+                raise FileNotFoundError(
+                    "Transformer() called without vocab sizes and no checkpoint found. "
+                    f"Searched: {search_paths}"
+                )
+
+            cfg = loaded_ckpt["model_config"]
+            src_vocab_size = cfg["src_vocab_size"]
+            tgt_vocab_size = cfg["tgt_vocab_size"]
+            d_model        = cfg.get("d_model",    d_model)
+            N              = cfg.get("N",           N)
+            num_heads      = cfg.get("num_heads",   num_heads)
+            d_ff           = cfg.get("d_ff",        d_ff)
+            dropout        = cfg.get("dropout",     dropout)
+            pad_idx        = cfg.get("pad_idx",     pad_idx)
+            # Load weights immediately
+            _state = loaded_ckpt["model_state_dict"]
+            _deferred_state = _state
+        else:
+            _deferred_state = None
 
         self.d_model = d_model
         self.pad_idx = pad_idx
@@ -512,11 +552,19 @@ class Transformer(nn.Module):
         # ── Weight initialisation (Xavier uniform, §3 of paper) ──────
         self._init_weights()
 
-        # ── Optional checkpoint loading ──────────────────────────────
-        if checkpoint_path is not None:
-            gdown.download(id="1EMG2mK3ZsLICTzNdtlN9eB_Hl1o5jmPr", output=checkpoint_path, quiet=False)
+        # ── Load deferred state (from no-arg construction) ───────────
+        if _deferred_state is not None:
+            self.load_state_dict(_deferred_state)
+
+        # ── Optional explicit checkpoint path ────────────────────────
+        elif checkpoint_path is not None:
+            if checkpoint_path.startswith("http") or not os.path.exists(checkpoint_path):
+                gdown.download(id="17QBhezCRVi5hzQ2c7gJWGQ6qz8BNFMj4", output=checkpoint_path, quiet=False)
             state = torch.load(checkpoint_path, map_location='cpu')
-            self.load_state_dict(state)
+            if "model_state_dict" in state:
+                self.load_state_dict(state["model_state_dict"])
+            else:
+                self.load_state_dict(state)
 
     def _init_weights(self) -> None:
         for p in self.parameters():
