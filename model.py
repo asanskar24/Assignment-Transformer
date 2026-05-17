@@ -514,7 +514,7 @@ class Transformer(nn.Module):
 
         # ── Optional checkpoint loading ──────────────────────────────
         if checkpoint_path is not None:
-            gdown.download(id="<.pth drive id>", output=checkpoint_path, quiet=False)
+            gdown.download(id="1EMG2mK3ZsLICTzNdtlN9eB_Hl1o5jmPr", output=checkpoint_path, quiet=False)
             state = torch.load(checkpoint_path, map_location='cpu')
             self.load_state_dict(state)
 
