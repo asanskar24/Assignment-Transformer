@@ -278,7 +278,7 @@ class Transformer(nn.Module):
                 quiet=False,
             )
 
-        checkpoint = torch.load(self.CKPT_LOCAL_PATH, map_location='cpu')
+        checkpoint = torch.load(self.CKPT_LOCAL_PATH, map_location='cpu',weights_only=False)
 
         # ── Step 2: Read architecture config from checkpoint ──────────
         cfg           = checkpoint["model_config"]
