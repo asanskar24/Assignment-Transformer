@@ -209,7 +209,7 @@ class Decoder(nn.Module):
 class Transformer(nn.Module):
 
     # ── PASTE YOUR GOOGLE DRIVE FILE ID HERE ──────────────────────────
-    GDRIVE_FILE_ID   = "17QBhezCRVi5hzQ2c7gJWGQ6qz8BNFMj4"
+    GDRIVE_FILE_ID   = "1NFJWpDKTp7RP1bk0TGsffj3hVDAVd3sO"
     DEFAULT_CHECKPOINT = "best_checkpoint.pt"
     # ──────────────────────────────────────────────────────────────────
 
