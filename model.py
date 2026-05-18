@@ -249,7 +249,7 @@ class Transformer(nn.Module):
     """
 
     # ── YOUR GOOGLE DRIVE FILE ID ──────────────────────────────────────
-    GDRIVE_FILE_ID     = "1FVIDBq2q4UgjPmpbzWAiyQMZ4pNFSD1z"
+    GDRIVE_FILE_ID     = "1-hd6pPlB8yr07W7hYqqGZbk90fnUoQ-j"
     CKPT_LOCAL_PATH    = "/tmp/best_checkpoint.pt"
     # ──────────────────────────────────────────────────────────────────
 
