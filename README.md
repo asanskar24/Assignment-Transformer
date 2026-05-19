@@ -17,3 +17,4 @@ assignment3/
 ```
 
 ## github link : https://github.com/asanskar24/Assignment-Transformer
+## WanDB report: https://api.wandb.ai/links/da25s019-iitm-india/cbr0ee30
